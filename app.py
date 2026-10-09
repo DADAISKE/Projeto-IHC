@@ -1,12 +1,11 @@
 # Grupo: Rodrigo Daiske Uehara - 10440295 | Felipe Martha - 10437877
-# Para rodar no computador: streamlit run app.py
 
 import streamlit as st
 from datetime import date, timedelta
 
 st.set_page_config(page_title="Direito Certo", page_icon="✅")
 
-#DADOS DO PROTÓTIPO
+# ---------------- DADOS DO PROTÓTIPO ----------------
 
 perguntas = [
     {"texto": "Quantas pessoas moram na sua casa, contando com você?",
@@ -19,7 +18,6 @@ perguntas = [
      "opcoes": ["Bolsa Família", "BPC (idoso ou pessoa com deficiência)", "Nenhum"]},
 ]
 
-# valor aproximado da renda de cada faixa (usado só para o cálculo)
 renda_da_faixa = {"Até R$ 700": 600, "De R$ 701 a R$ 1.500": 1100,
                   "De R$ 1.501 a R$ 3.000": 2250, "Mais de R$ 3.000": 3500}
 
@@ -48,7 +46,7 @@ beneficios = {
 semaforo = {3: "🟢🟢🟢 Grande chance", 2: "🟡🟡⚪ Precisa de atenção", 1: "🔴⚪⚪ Pouca chance"}
 
 
-#MEMÓRIA DO APP
+# ---------------- MEMÓRIA DO APP (session_state) ----------------
 
 if "tela" not in st.session_state:
     st.session_state.tela = "inicio"
@@ -70,35 +68,117 @@ def botao_voltar():
     st.button("⬅ Voltar ao início", on_click=ir_para, args=["inicio"])
 
 
-#ACESSIBILIDADE (tamanho do texto e alto contraste)
+# ---------------- VISUAL (cores e estilo iguais ao protótipo em HTML) ----------------
+
+if st.session_state.contraste:
+    cor = {"fundo": "#000000", "cartao": "#000000", "texto": "#ffffff", "suave": "#e8e8e8",
+           "borda": "#ffffff", "verde": "#ffd60a", "verde_claro": "#262000", "texto_botao": "#000000"}
+else:
+    cor = {"fundo": "#eef3f0", "cartao": "#ffffff", "texto": "#15231c", "suave": "#4f6158",
+           "borda": "#c9d6cf", "verde": "#17654a", "verde_claro": "#dcefe5", "texto_botao": "#ffffff"}
 
 tamanhos = {"Normal": "16px", "Grande": "20px", "Muito grande": "24px"}
-css = f"""
+letra = tamanhos[st.session_state.fonte]
+
+st.markdown(f"""
 <style>
-p, label, li, button, input, .stMarkdown {{ font-size: {tamanhos[st.session_state.fonte]} !important; }}
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap');
+
+/* fundo e largura de celular */
+.stApp {{ background: {cor["fundo"]}; }}
+[data-testid="stHeader"] {{ display: none; }}
+[data-testid="stMainBlockContainer"] {{ max-width: 430px; padding: 24px 16px 40px; }}
+
+/* fonte e cor do texto */
+.stApp h1, .stApp h2, .stApp h3, .stApp p, .stApp label, .stApp li, .stApp button, .stApp input {{
+    font-family: "Atkinson Hyperlegible", Arial, sans-serif !important;
+    color: {cor["texto"]};
+}}
+.stApp p, .stApp label, .stApp li, .stApp button, .stApp input {{ font-size: {letra} !important; }}
+[data-testid="stCaptionContainer"] p {{ color: {cor["suave"]} !important; }}
+
+/* cartões (containers com key que começa com "cartao") */
+[class*="st-key-cartao"] {{
+    background: {cor["cartao"]};
+    border: 1.5px solid {cor["borda"]};
+    border-radius: 14px;
+    padding: 16px;
+}}
+.st-key-cartao_teste {{ border: 2px solid {cor["verde"]}; }}
+
+/* botão principal verde */
+button[data-testid="stBaseButton-primary"], button[data-testid="stBaseButton-primaryFormSubmit"] {{
+    background: {cor["verde"]} !important;
+    border: none !important;
+    border-radius: 12px;
+    min-height: 52px;
+}}
+button[data-testid="stBaseButton-primary"] p, button[data-testid="stBaseButton-primaryFormSubmit"] p {{
+    color: {cor["texto_botao"]} !important;
+    font-weight: 700;
+}}
+
+/* botões normais brancos com borda */
+button[data-testid="stBaseButton-secondary"] {{
+    background: {cor["cartao"]} !important;
+    border: 1.5px solid {cor["borda"]} !important;
+    border-radius: 12px;
+    min-height: 46px;
+}}
+
+/* opções das perguntas em caixas, como no HTML */
+[data-testid="stRadioOption"], [data-testid="stCheckbox"] label {{
+    background: {cor["cartao"]};
+    border: 1.5px solid {cor["borda"]};
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 6px;
+}}
+[data-testid="stRadioOption"][data-selected="true"], [data-testid="stCheckbox"] label:has(input:checked) {{
+    border: 2.5px solid {cor["verde"]};
+    background: {cor["verde_claro"]};
+}}
+[data-testid="stRadioOption"][data-selected="true"] p, [data-testid="stCheckbox"] label:has(input:checked) p {{
+    font-weight: 700;
+}}
+
+/* bolinha do rádio, quadradinho do checkbox e barra de progresso em verde */
+[data-testid="stRadioOption"][data-selected="true"] > div > div:first-child {{
+    background: {cor["verde"]} !important;
+    border-color: {cor["verde"]} !important;
+}}
+[data-testid="stCheckbox"] label[data-selected="true"] > div:first-of-type {{
+    background-color: {cor["verde"]} !important;
+    border-color: {cor["verde"]} !important;
+}}
+
+/* nas perguntas, cada opção ocupa a largura toda */
+[aria-orientation="vertical"] {{ align-items: stretch !important; }}
+[data-testid="stRadio"], [data-testid="stRadio"] > div, [aria-orientation="vertical"] [data-testid="stRadioOption"],
+[data-testid="stElementContainer"]:has([data-testid="stCheckbox"]), [data-testid="stCheckbox"], [data-testid="stCheckbox"] label {{
+    width: 100% !important;
+}}
+
+/* botões da tela inicial parecem as linhas do HTML (texto à esquerda) */
+[class*="st-key-linha"] button {{ min-height: 60px; justify-content: flex-start; }}
+[class*="st-key-linha"] button > div {{ justify-content: flex-start; }}
+[data-testid="stProgressBarTrack"] {{ background: {cor["verde_claro"]} !important; }}
+[data-testid="stProgressBarTrack"] > div {{ background: {cor["verde"]} !important; }}
+
+/* campos de texto e data */
+.stApp input {{ background: {cor["cartao"]} !important; }}
 </style>
-"""
-if st.session_state.contraste:
-    css += """
-<style>
-.stApp, header { background-color: #000000 !important; }
-.stApp * { color: #ffffff !important; }
-button { background-color: #000000 !important; border: 2px solid #ffff00 !important; }
-button[kind="primary"] { background-color: #ffff00 !important; }
-button[kind="primary"] * { color: #000000 !important; }
-</style>
-"""
-st.markdown(css, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 
-# REGRAS DO RESULTADO
+# ---------------- REGRAS DO RESULTADO ----------------
 
 def calcular_resultado():
     r = st.session_state.respostas
     pessoas = perguntas[0]["opcoes"].index(r[0]) + 1
     renda_por_pessoa = renda_da_faixa[r[1]] / pessoas
     recebe = r[3]
-    renda_baixa = renda_por_pessoa <= 810  # mais ou menos meio salário mínimo
+    renda_baixa = renda_por_pessoa <= 810 
 
     resultado = {}
 
@@ -125,21 +205,23 @@ def calcular_resultado():
     else:
         resultado["Passe Livre"] = (1, "Pelas suas respostas, você não se encaixa agora.")
 
+
     st.session_state.resultado = dict(sorted(resultado.items(), key=lambda item: item[1][0], reverse=True))
 
 
-#TELAS
+# ---------------- TELAS ----------------
 
 def tela_inicio():
     st.title("Direito Certo")
     st.write("Olá! Descubra os benefícios que são seus por direito.")
+
 
     for lembrete in st.session_state.lembretes:
         dias = (lembrete["data"] - date.today()).days
         if 0 <= dias <= lembrete["antecedencia"]:
             st.warning(f"🔔 **{lembrete['assunto']}** vence em {dias} dia(s) ({lembrete['data']:%d/%m/%Y})")
 
-    with st.container(border=True):
+    with st.container(key="cartao_teste"):
         st.subheader("Teste Rápido")
         if st.session_state.pergunta > 0:
             st.write(f"Você parou na pergunta {st.session_state.pergunta + 1} de 4.")
@@ -149,9 +231,11 @@ def tela_inicio():
             st.button("Começar teste", type="primary", on_click=ir_para, args=["teste"], use_container_width=True)
 
     if st.session_state.resultado:
-        st.button("📋 Ver meu último resultado", on_click=ir_para, args=["resultado"], use_container_width=True)
-    st.button("🔔 Lembretes", on_click=ir_para, args=["lembretes"], use_container_width=True)
-    st.button("🔠 Acessibilidade", on_click=ir_para, args=["acessibilidade"], use_container_width=True)
+        st.button("📋  Ver meu último resultado", on_click=ir_para, args=["resultado"],
+                  use_container_width=True, key="linha_resultado")
+    st.button("🔔  Lembretes", on_click=ir_para, args=["lembretes"], use_container_width=True, key="linha_lembretes")
+    st.button("🔠  Acessibilidade", on_click=ir_para, args=["acessibilidade"],
+              use_container_width=True, key="linha_acessibilidade")
 
 
 def tela_teste():
@@ -166,6 +250,7 @@ def tela_teste():
 
     if n < 3:
         posicao = p["opcoes"].index(resposta_antiga) if resposta_antiga else None
+
         resposta = st.radio(f"**{p['texto']}**", p["opcoes"], index=posicao, key=f"pergunta{n}",
                             format_func=lambda x: x.replace("$", "\\$"))
     else:
@@ -207,8 +292,8 @@ def tela_resultado():
     st.header(f"Encontramos {encontrados} benefício(s) para você")
     st.caption("🟢 Grande chance · 🟡 Precisa de atenção · 🔴 Pouca chance")
 
-    for nome, (nivel, motivo) in st.session_state.resultado.items():
-        with st.container(border=True):
+    for i, (nome, (nivel, motivo)) in enumerate(st.session_state.resultado.items()):
+        with st.container(key=f"cartao_resultado_{i}"):
             st.subheader(nome)
             st.write(beneficios[nome]["resumo"])
             st.caption(motivo)
@@ -229,7 +314,7 @@ def tela_resultado():
 def tela_guia():
     nome = st.session_state.beneficio
     b = beneficios[nome]
-    prazo = date.today() + timedelta(days=30)  # prazo de exemplo
+    prazo = date.today() + timedelta(days=30)  
 
     st.button("⬅ Voltar ao resultado", on_click=ir_para, args=["resultado"])
     st.header(nome)
@@ -245,7 +330,7 @@ def tela_guia():
     for doc in b["documentos"]:
         chave = nome + doc
         marcado = st.checkbox(doc, value=st.session_state.docs.get(chave, False))
-        st.session_state.docs[chave] = marcado  # guarda para não perder ao trocar de tela
+        st.session_state.docs[chave] = marcado 
         if marcado:
             separados += 1
     st.progress(separados / len(b["documentos"]), text=f"{separados} de {len(b['documentos'])} separados")
@@ -270,7 +355,7 @@ def tela_lembretes():
         st.write("Você ainda não tem lembretes.")
 
     for i, lembrete in enumerate(st.session_state.lembretes):
-        with st.container(border=True):
+        with st.container(key=f"cartao_lembrete_{i}"):
             st.write(f"🔔 **{lembrete['assunto']}**")
             st.caption(f"Até {lembrete['data']:%d/%m/%Y} · aviso {lembrete['antecedencia']} dia(s) antes")
             if st.button("Excluir", key=f"excluir_{i}"):
@@ -302,7 +387,6 @@ def tela_acessibilidade():
     contraste = st.toggle("Alto contraste (fundo escuro com letras claras)", value=st.session_state.contraste)
     st.write("Assim fica o texto no aplicativo.")
 
-    # se mudou alguma coisa, salva e recarrega a tela para aplicar
     if fonte != st.session_state.fonte or contraste != st.session_state.contraste:
         st.session_state.fonte = fonte
         st.session_state.contraste = contraste
