@@ -1,4 +1,6 @@
-# Grupo: Rodrigo Daiske Uehara - 10440295 | Felipe Martha - 10437877
+# Grupo:
+# Rodrigo Daiske Uehara - 10440295
+# Felipe Martha - 10437877
 
 import streamlit as st
 from datetime import date, timedelta
