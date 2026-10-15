@@ -147,7 +147,14 @@ html, body, .stApp { background: var(--pagina) !important; }
 }
 [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] { gap: 0; min-height: 836px; }
 @media (max-width: 500px) {
-    [data-testid="stMainBlockContainer"] { margin: 0; max-width: 100%; border: none; border-radius: 0; }
+    /* no celular quem rola é a própria página (o Safari do iPhone trava a rolagem de caixas internas) */
+    html { height: auto !important; overflow-y: auto !important; }
+    body, #root, [data-testid="stScreencast"], .stApp, [data-testid="stAppViewContainer"],
+    [data-testid="stAppViewContainer"] > div, [data-testid="stMain"] {
+        position: relative !important; inset: auto !important; height: auto !important;
+        min-height: 100dvh; overflow: visible !important;
+    }
+    [data-testid="stMainBlockContainer"] { margin: 0; max-width: 100%; border: none; border-radius: 0; overflow: visible; }
     [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] { min-height: 100dvh; }
     /* deixa livre o canto de baixo, onde o Streamlit Cloud põe os selos dele no celular */
     .st-key-rodape, .st-key-nav { padding-bottom: calc(46px + env(safe-area-inset-bottom)) !important; }
@@ -218,6 +225,7 @@ html, body, .stApp { background: var(--pagina) !important; }
 [class*="st-key-tq_"] button {
     width: 100%; height: 100%; opacity: 0; cursor: pointer; border: none !important; background: transparent !important;
 }
+.stApp button { touch-action: manipulation; }
 [class*="st-key-tq_"] button:focus-visible { opacity: 1; outline: 3px solid var(--verde); outline-offset: 3px; }
 [class*="st-key-tq_"] button:focus-visible p { color: transparent !important; }
 
@@ -838,3 +846,13 @@ telas = {
     "acessibilidade": tela_acessibilidade,
 }
 telas[st.session_state.tela]()
+
+# ao trocar de tela, volta para o topo (no celular quem rola é a página inteira)
+st.html(f"""<script>
+if (window.telaAtual !== "{st.session_state.tela}") {{
+    window.telaAtual = "{st.session_state.tela}";
+    window.scrollTo(0, 0);
+    var principal = document.querySelector('[data-testid="stMain"]');
+    if (principal) principal.scrollTo(0, 0);
+}}
+</script>""", unsafe_allow_javascript=True)
