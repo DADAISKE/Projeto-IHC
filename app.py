@@ -149,6 +149,15 @@ html, body, .stApp { background: var(--pagina) !important; }
 @media (max-width: 500px) {
     [data-testid="stMainBlockContainer"] { margin: 0; max-width: 100%; border: none; border-radius: 0; }
     [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] { min-height: 100dvh; }
+    /* deixa livre o canto de baixo, onde o Streamlit Cloud põe os selos dele no celular */
+    .st-key-rodape, .st-key-nav { padding-bottom: calc(46px + env(safe-area-inset-bottom)) !important; }
+    .st-key-nav { padding-top: 4px !important; }
+    .st-key-nav button { min-height: 50px !important; }
+    .st-key-rodape { padding-top: 12px !important; gap: 0 !important; }
+    .st-key-rodape [data-testid="stBaseButton-primary"] { min-height: 50px; }
+    .st-key-topo { padding-top: 12px !important; min-height: 64px; }
+    .st-key-corpo { padding-top: 18px !important; }
+    .imagem { height: 90px !important; margin-bottom: 14px !important; }
 }
 
 /* cabeçalho, corpo e rodapé */
