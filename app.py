@@ -149,13 +149,10 @@ html, body, .stApp { background: var(--pagina) !important; }
 @media (max-width: 500px) {
     [data-testid="stMainBlockContainer"] { margin: 0; max-width: 100%; border: none; border-radius: 0; }
     [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] { min-height: 100dvh; }
-    .status { display: none !important; }
 }
 
-/* barra de status, cabeçalho, corpo e rodapé */
-.status { display: flex; justify-content: space-between; padding: 14px 30px 2px; font-weight: 700;
-          font-size: 15px; background: var(--cartao); }
-.st-key-topo { padding: 10px 18px 14px; background: var(--cartao); border-bottom: 2px solid var(--borda);
+/* cabeçalho, corpo e rodapé */
+.st-key-topo { padding: 22px 18px 14px; background: var(--cartao); border-bottom: 2px solid var(--borda);
                min-height: 74px; flex-wrap: nowrap; }
 .st-key-topo > div:has(.titulo-topo) { flex: 1 1 auto !important; min-width: 0; }
 .titulo-topo { font-weight: 700; font-size: calc(var(--fs) * 1.2); line-height: 1.2; }
@@ -385,10 +382,6 @@ def rotulo_botao(texto):
     return str(texto).replace("$", "\\$")
 
 
-def barra_status():
-    st.html('<div class="status"><span>9:41</span><span>4G 80%</span></div>')
-
-
 def botao_ouvir(texto, rotulo=""):
     """Botão que lê o texto em voz alta usando a voz do próprio navegador."""
     if not st.session_state.audio:
@@ -590,7 +583,6 @@ def escolher(chave, valor):
 
 def tela_inicio():
     nome = st.session_state.nome
-    barra_status()
     topo("Direito Certo", a_mais=True,
          ouvir=f"Olá, {nome}! Descubra os benefícios que são seus por direito. "
                "Toque em Começar teste para responder poucas perguntas, em cerca de 3 minutos.")
@@ -618,7 +610,6 @@ def tela_teste():
     multipla = n == 3
     resposta = st.session_state.respostas.get(n)
 
-    barra_status()
     topo("Teste Rápido", ao_voltar=voltar_pergunta,
          ouvir=f"Pergunta {n + 1} de 4. {p['texto']} As opções são: {', '.join(p['opcoes'])}.")
 
@@ -651,7 +642,6 @@ def tela_resultado():
     resumo = titulo + ". " + " ".join(f"{nome}: {chances[nivel]}. {motivo}"
                                       for nome, (nivel, motivo) in resultado.items())
 
-    barra_status()
     topo("Resultado", ao_voltar=lambda: ir_para("inicio"), ouvir=resumo)
 
     with corpo():
@@ -688,7 +678,6 @@ def tela_guia():
     ]
     explicacao = b["descricao"] + " " + " ".join(f"Passo {i}: {t}. {s}." for i, (t, s, *_) in enumerate(passos, 1))
 
-    barra_status()
     topo(nome, ao_voltar=voltar_do_guia, ouvir=explicacao)
 
     with corpo():
@@ -709,7 +698,6 @@ def tela_documentos():
     docs = beneficios[nome]["documentos"]
     separados, total = contar_docs(nome)
 
-    barra_status()
     topo("Documentos", ao_voltar=lambda: ir_para("guia"),
          ouvir=f"Documentos para {nome}. " + ". ".join(f"{d}, {det}" for d, det in docs) +
                ". Leve os originais. Não precisa de cópia.")
@@ -736,7 +724,6 @@ def tela_posto():
     itens = "".join(f"<li>{esc(doc)}{' (' + esc(det) + ')' if doc == 'Documento com foto' else ''}</li>"
                     for doc, det in docs)
 
-    barra_status()
     topo("Posto mais próximo", ao_voltar=voltar)
 
     with corpo():
@@ -752,7 +739,6 @@ def tela_posto():
 
 
 def tela_lembretes():
-    barra_status()
     topo("Lembretes")
 
     with corpo():
@@ -781,7 +767,6 @@ def tela_lembretes():
 
 
 def tela_novolembrete():
-    barra_status()
     topo("Novo lembrete", ao_voltar=voltar)
 
     with corpo():
@@ -813,7 +798,6 @@ def tela_novolembrete():
 
 
 def tela_acessibilidade():
-    barra_status()
     topo("Acessibilidade", ao_voltar=lambda: ir_para("inicio"))
 
     with corpo():
